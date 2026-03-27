@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tính Chi Tiêu Pro Max</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #eef2ff, #f8fafc);
+      color: #1f2937;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .title-box {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .title-box h1 {
+      margin: 0;
+      font-size: 32px;
+    }
+
+    .title-box p {
+      margin-top: 8px;
+      color: #6b7280;
+      font-size: 16px;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: bold;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input, select {
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    input:focus, select:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-primary {
+      background: #4f46e5;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+    }
+
+    .summary-box {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-item {
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 14px;
+      border-left: 6px solid #6366f1;
+    }
+
+    .summary-label {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+
+    .summary-value {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .status-box {
+      margin-top: 12px;
+      padding: 15px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .status-good {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-ok {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .status-warning {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .note {
+      margin-top: 14px;
+      background: #f3f4f6;
+      padding: 12px;
+      border-radius: 12px;
+      color: #374151;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f3f4f6;
+    }
+
+    tr:hover {
+      background: #f9fafb;
+    }
+
+    .empty-history {
+      color: #6b7280;
+      text-align: center;
+      padding: 18px 0;
+    }
+
+    .footer-tip {
+      margin-top: 20px;
+      text-align: center;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-value {
+        font-size: 20px;
+      }
+
+      .title-box h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title-box">
+      <h1>💰 Công Cụ Tính Chi Tiêu Hàng Tháng</h1>
+      <p>Bản pro max: tính nhanh, rõ ràng, lưu lịch sử, dễ theo dõi tiền còn lại để ăn uống và sinh hoạt</p>
+    </div>
+
+    <div class="main-grid">
+      <!-- Bên trái: form nhập -->
+      <div class="card">
+        <h2>📌 Nhập thông tin</h2>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="month">Tháng</label>
+            <input type="month" id="month" />
+          </div>
+
+          <div class="form-group">
+            <label for="rate">Tỉ giá (VND / 1 TWD)</label>
+            <input type="number" id="rate" value="830" min="1" />
+          </div>
+
+          <div class="form-group">
+            <label for="salary">Lương tháng (TWD)</label>
+            <input type="number" id="salary" value="40000" min="0" />
+          </div>
+
+          <div class="form-group">
+            <label for="rent">Tiền nhà (TWD)</label>
+            <input type="number" id="rent" value="4000" min="0" />
+          </div>
+
+          <div class="form-group">
+            <label for="tuition">Học phí (TWD)</label>
+            <input type="number" id="tuition" value="8700" min="0" />
+          </div>
+
+          <div class="form-group">
+            <label for="saveVND">Tiết kiệm gửi về / để riêng (VND)</label>
+            <input type="number" id="saveVND" value="20000000" min="0" />
+          </div>
+
+          <div class="form-group">
+            <label for="food">Tiền ăn uống dự kiến (TWD)</label>
+            <input type="number" id="food" value="0" min="0" />
+          </div>
+
+          <div class="form-group">
+            <label for="utilities">Điện nước / mạng / gas (TWD)</label>
+            <input type="number" id="utilities" value="0" min="0" />
+          </div>
+
+          <div class="form-group full">
+            <label for="other">Chi phí khác (đi lại, mua đồ, phát sinh...) (TWD)</label>
+            <input type="number" id="other" value="0" min="0" />
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn-primary" onclick="calculate()">Tính ngay</button>
+          <button class="btn-primary" onclick="saveHistory()">Lưu lịch sử tháng này</button>
+          <button class="btn-secondary" onclick="resetForm()">Đặt lại</button>
+          <button class="btn-secondary" onclick="clearHistory()">Xóa toàn bộ lịch sử</button>
+        </div>
+
+        <div class="note">
+          <strong>Gợi ý:</strong><br>
+          - Nếu bạn muốn biết còn bao nhiêu tiền để ăn uống, hãy để ô “tiền ăn uống dự kiến” = 0 rồi bấm tính.<br>
+          - Nếu muốn tính luôn tất cả chi tiêu trong tháng, hãy nhập thêm tiền ăn, điện nước và các khoản khác.
+        </div>
+      </div>
+
+      <!-- Bên phải: kết quả -->
+      <div class="card">
+        <h2>📊 Kết quả</h2>
+
+        <div class="summary-box">
+          <div class="summary-item">
+            <div class="summary-label">Tiền tiết kiệm quy đổi sang TWD</div>
+            <div class="summary-value" id="saveTWDResult">0 TWD</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="summary-label">Tổng chi phí</div>
+            <div class="summary-value" id="totalCostResult">0 TWD</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="summary-label">Còn lại để chi tiêu / giữ lại</div>
+            <div class="summary-value" id="remainTWDResult">0 TWD</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="summary-label">Quy đổi tiền còn lại sang VND</div>
+            <div class="summary-value" id="remainVNDResult">0 VND</div>
+          </div>
+        </div>
+
+        <div id="statusBox" class="status-box status-ok">
+          Hãy nhập dữ liệu rồi bấm “Tính ngay”.
+        </div>
+
+        <div class="note" id="analysisText">
+          Phân tích sẽ hiện ở đây.
+        </div>
+      </div>
+    </div>
+
+    <!-- Lịch sử -->
+    <div class="card" style="margin-top: 20px;">
+      <h2>🗂️ Lịch sử đã lưu</h2>
+      <div id="historyContainer"></div>
+    </div>
+
+    <div class="footer-tip">
+      Làm bằng 1 file HTML duy nhất — mở trên máy tính hoặc điện thoại đều được.
+    </div>
+  </div>
+
+  <script>
+    function formatNumber(number) {
+      return Number(number).toLocaleString("vi-VN");
+    }
+
+    function getValue(id) {
+      return Number(document.getElementById(id).value) || 0;
+    }
+
+    function getMonthValue() {
+      return document.getElementById("month").value || "Chưa chọn";
+    }
+
+    function calculate() {
+      const salary = getValue("salary");
+      const rent = getValue("rent");
+      const tuition = getValue("tuition");
+      const saveVND = getValue("saveVND");
+      const rate = getValue("rate");
+      const food = getValue("food");
+      const utilities = getValue("utilities");
+      const other = getValue("other");
+
+      if (rate <= 0) {
+        alert("Tỉ giá phải lớn hơn 0.");
+        return null;
+      }
+
+      const saveTWD = saveVND / rate;
+      const totalCost = rent + tuition + saveTWD + food + utilities + other;
+      const remainTWD = salary - totalCost;
+      const remainVND = remainTWD * rate;
+
+      document.getElementById("saveTWDResult").innerText =
+        formatNumber(saveTWD.toFixed(0)) + " TWD";
+
+      document.getElementById("totalCostResult").innerText =
+        formatNumber(totalCost.toFixed(0)) + " TWD";
+
+      document.getElementById("remainTWDResult").innerText =
+        formatNumber(remainTWD.toFixed(0)) + " TWD";
+
+      document.getElementById("remainVNDResult").innerText =
+        formatNumber(remainVND.toFixed(0)) + " VND";
+
+      const statusBox = document.getElementById("statusBox");
+      const analysisText = document.getElementById("analysisText");
+
+      let statusClass = "status-ok";
+      let statusText = "";
+      let analysis = "";
+
+      if (remainTWD < 0) {
+        statusClass = "status-danger";
+        statusText = "⚠️ Bạn đang âm tiền. Chi nhiều hơn thu.";
+        analysis = "Tháng này tổng chi phí vượt quá lương. Bạn nên giảm tiền tiết kiệm, giảm chi phí phát sinh hoặc tăng thu nhập để tránh thiếu tiền sinh hoạt.";
+      } else if (remainTWD <= 3000) {
+        statusClass = "status-warning";
+        statusText = "😥 Tài chính khá căng. Cần chi tiêu rất cẩn thận.";
+        analysis = "Số tiền còn lại hơi thấp. Nếu ăn ngoài nhiều hoặc có phát sinh, rất dễ thiếu tiền cuối tháng.";
+      } else if (remainTWD <= 10000) {
+        statusClass = "status-ok";
+        statusText = "🙂 Vẫn ổn, nhưng nên quản lý chi tiêu hợp lý.";
+        analysis = "Bạn vẫn còn tiền sinh hoạt, nhưng không nên tiêu quá tay. Nên chia ngân sách theo tuần để dễ kiểm soát.";
+      } else {
+        statusClass = "status-good";
+        statusText = "✅ Tài chính khá tốt. Bạn còn dư tương đối.";
+        analysis = "Sau khi trừ các khoản cần thiết, bạn vẫn còn một khoản khá ổn để ăn uống, sinh hoạt hoặc tiết kiệm thêm.";
+      }
+
+      statusBox.className = "status-box " + statusClass;
+      statusBox.innerText = statusText;
+
+      const dailyBudget = remainTWD > 0 ? (remainTWD / 30) : 0;
+
+      analysisText.innerHTML = `
+        <strong>Phân tích nhanh:</strong><br>
+        - Lương: <strong>${formatNumber(salary)} TWD</strong><br>
+        - Tổng chi: <strong>${formatNumber(totalCost.toFixed(0))} TWD</strong><br>
+        - Còn lại: <strong>${formatNumber(remainTWD.toFixed(0))} TWD</strong><br>
+        - Trung bình bạn có thể dùng khoảng: <strong>${formatNumber(dailyBudget.toFixed(0))} TWD/ngày</strong><br><br>
+        ${analysis}
+      `;
+
+      return {
+        month: getMonthValue(),
+        salary,
+        rent,
+        tuition,
+        saveVND,
+        rate,
+        saveTWD: Math.round(saveTWD),
+        food,
+        utilities,
+        other,
+        totalCost: Math.round(totalCost),
+        remainTWD: Math.round(remainTWD),
+        remainVND: Math.round(remainVND)
+      };
+    }
+
+    function saveHistory() {
+      const result = calculate();
+      if (!result) return;
+
+      let history = JSON.parse(localStorage.getItem("expenseHistory")) || [];
+      history.unshift(result);
+      localStorage.setItem("expenseHistory", JSON.stringify(history));
+      renderHistory();
+      alert("Đã lưu lịch sử thành công.");
+    }
+
+    function renderHistory() {
+      const historyContainer = document.getElementById("historyContainer");
+      let history = JSON.parse(localStorage.getItem("expenseHistory")) || [];
+
+      if (history.length === 0) {
+        historyContainer.innerHTML = `<div class="empty-history">Chưa có dữ liệu nào được lưu.</div>`;
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Tháng</th>
+              <th>Lương</th>
+              <th>Tổng chi</th>
+              <th>Còn lại (TWD)</th>
+              <th>Còn lại (VND)</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      history.forEach(item => {
+        html += `
+          <tr>
+            <td>${item.month}</td>
+            <td>${formatNumber(item.salary)}</td>
+            <td>${formatNumber(item.totalCost)}</td>
+            <td>${formatNumber(item.remainTWD)}</td>
+            <td>${formatNumber(item.remainVND)}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+          </tbody>
+        </table>
+      `;
+
+      historyContainer.innerHTML = html;
+    }
+
+    function resetForm() {
+      document.getElementById("salary").value = 40000;
+      document.getElementById("rent").value = 4000;
+      document.getElementById("tuition").value = 8700;
+      document.getElementById("saveVND").value = 20000000;
+      document.getElementById("rate").value = 830;
+      document.getElementById("food").value = 0;
+      document.getElementById("utilities").value = 0;
+      document.getElementById("other").value = 0;
+
+      document.getElementById("saveTWDResult").innerText = "0 TWD";
+      document.getElementById("totalCostResult").innerText = "0 TWD";
+      document.getElementById("remainTWDResult").innerText = "0 TWD";
+      document.getElementById("remainVNDResult").innerText = "0 VND";
+
+      const statusBox = document.getElementById("statusBox");
+      statusBox.className = "status-box status-ok";
+      statusBox.innerText = "Hãy nhập dữ liệu rồi bấm “Tính ngay”.";
+
+      document.getElementById("analysisText").innerText = "Phân tích sẽ hiện ở đây.";
+    }
+
+    function clearHistory() {
+      const check = confirm("Bạn có chắc muốn xóa toàn bộ lịch sử không?");
+      if (!check) return;
+
+      localStorage.removeItem("expenseHistory");
+      renderHistory();
+      alert("Đã xóa toàn bộ lịch sử.");
+    }
+
+    function setCurrentMonth() {
+      const monthInput = document.getElementById("month");
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      monthInput.value = `${year}-${month}`;
+    }
+
+    setCurrentMonth();
+    renderHistory();
+  </script>
+</body>
+</html>
